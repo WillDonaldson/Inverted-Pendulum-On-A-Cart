@@ -4,6 +4,7 @@
 #include "motor.h"
 
 const int pulsesPerRev = 1024;      // unique to encoder
+const int trackLength = 350;        // number of pulses measured by motor encoder. Found using Measure-Track-Length.ino
 int currCount = 0;
 int prevCount;
 
@@ -29,20 +30,34 @@ float pclass::ANGLE(){
 }
 
 void pclass::CALIBRATE(){
-  //moves cart to rightmost limit switch and waits for the pendulum to settle
+  // move cart to rightmost limit switch  
   while(digitalRead(g_rightLimit) == 0){
     g_motorDir = -1;
-    motor.DRIVEMOTOR(g_motorDir, 255);
+    motor.DRIVEMOTOR(g_motorDir, 80);
     delay(1);
   }
+  
+  // wait for the pendulum to settle
   g_motorDir = 0;
   motor.DRIVEMOTOR(g_motorDir, 0);
   do{
     prevCount = currCount;  
     delay(250);                   
     currCount = g_pendulumEncA;
-  }while(prevCount != currCount);         // wait until the pendulum is stationary
-  g_pendulumEncA = pulsesPerRev/2;        // calibrate s.t. theta = 0, pi when the pendulum is vertical upwards and downwards, respectively. 
+  }while(prevCount != currCount);        
+  g_pendulumEncA = pulsesPerRev/2;        // calibrate count s.t. theta = 0, pi when the pendulum is vertical upwards and downwards, respectively. 
+  
+  // move cart to centre point of track 
+  g_motorEnc = 0;
+  while(g_motorEnc < (trackLength/2.)){
+    g_motorDir = 1;
+    motor.DRIVEMOTOR(g_motorDir, 80);
+    delay(1);
+  }
+  g_motorDir = 0;
+  motor.DRIVEMOTOR(g_motorDir, 0);
+  delay(1000);
+  Serial.println(g_motorEnc);
 }
 
 bool pclass::CHECKLIMITS(){
@@ -50,7 +65,6 @@ bool pclass::CHECKLIMITS(){
     g_motorDir = 0;
     motor.DRIVEMOTOR(g_motorDir, 0);
     CALIBRATE();
-    //move2centreoftrack(); wait until pendulum is manually rotated to vertical
     return true; 
   } 
   else{
