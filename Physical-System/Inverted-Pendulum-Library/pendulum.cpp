@@ -42,11 +42,11 @@ void pclass::CALIBRATE(){
   motor.DRIVEMOTOR(g_motorDir, 0);
   do{
     prevCount = currCount;  
-    delay(250);                   
+    delay(2500);                   
     currCount = g_pendulumEncA;
   }while(prevCount != currCount);        
   g_pendulumEncA = pulsesPerRev/2;        // calibrate count s.t. theta = 0, pi when the pendulum is vertical upwards and downwards, respectively. 
-  
+
   // move cart to centre point of track 
   g_motorEnc = 0;
   while(g_motorEnc < (trackLength/2.)){
@@ -56,8 +56,7 @@ void pclass::CALIBRATE(){
   }
   g_motorDir = 0;
   motor.DRIVEMOTOR(g_motorDir, 0);
-  delay(1000);
-  Serial.println(g_motorEnc);
+  delay(500);
 }
 
 bool pclass::CHECKLIMITS(){

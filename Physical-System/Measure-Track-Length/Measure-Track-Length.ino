@@ -12,7 +12,6 @@
 #define motorEncoder 4
 
 int encoderDir = 0;  
-volatile int motorCount = 0; 
 
 void setup() {
   motor.SETUP();
@@ -27,15 +26,15 @@ void setup() {
 
   pendulum.CALIBRATE();
 
-  motorCount = 0;
+  g_motorEnc = 0;
   while(digitalRead(g_leftLimit) == 0){
       g_motorDir = 1;
-      motor.DRIVEMOTOR(g_motorDir, 100);
+      motor.DRIVEMOTOR(g_motorDir, 80);
       delay(1);
   }
   g_motorDir = 0;
   motor.DRIVEMOTOR(g_motorDir, 0);
-  Serial.println(motorCount);  
+  Serial.println(g_motorEnc);  
 }
 
 void loop(){
