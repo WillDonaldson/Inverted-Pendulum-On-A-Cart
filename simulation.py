@@ -21,17 +21,13 @@ t_span = [0.0, frames * dt]
 pendulumArm = lines.Line2D(origin, origin, color='r') 
 cart = patches.Rectangle(origin, 1.5, 0.5, color='b')
 def stateSpace(t, initial):
-    # this function is currently messy in terms of matrix manipulation
-    # there is also a mysterious -ve that must be included with theta (or theta_dot instead)
-    # have no clue where this mathematical bug is from; 
-    # without the -ve multiplication the system blows up
-    i=np.matrix([[initial[0]], [initial[1]], [initial[2]], [initial[3]]])
-    ss = np.array((variables.A*i).reshape(1,4))
-    return [ss[0][0], -ss[0][1], ss[0][2], ss[0][3]]
+    # returns state space model evaluated at initial conditions
+    ss = np.matmul(variables.A, np.transpose(initial))
+    return ss
 
 initial=np.array([0, 7*np.pi/8, 0, 0])
 ts = np.linspace(t_span[0], t_span[1], frames)
-pendulum_state = solve_ivp(stateSpace, t_span, initial, t_eval = ts)
+pendulum_state = solve_ivp(stateSpace, t_span, initial, t_eval = ts, rtol=1e-8)
 
 def init():
     ax.add_patch(cart)
