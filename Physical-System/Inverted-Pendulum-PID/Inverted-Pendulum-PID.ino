@@ -65,18 +65,8 @@ void motorPulse(){
   g_motorEnc += g_motorDir;
 }
 
-void checkDirection(){
-  if((bool) digitalReadFast(encoderB) ==  HIGH){       // digitalReadFast() is faster than digitalRead()
-    encoderDir = 1;  
-  }
-  else{
-    encoderDir = -1;
-  }
-}
-
 void pulse(){  
-  checkDirection();
-  g_pendulumEncA += encoderDir;
+  g_pendulumEncA += ((bool) digitalReadFast(encoderB) ==  HIGH) ? 1 : -1;
   /*
   if(prevEncDir != encoderDir){
     // used to find period of ultimate gain (uncomment while tuning PID coefficients)
