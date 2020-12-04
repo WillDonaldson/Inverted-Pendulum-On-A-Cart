@@ -36,9 +36,11 @@ void setup() {
   pendulum.SETUP(); 
   Serial.begin(9600);
   
-  pinMode(encoderA, INPUT_PULLUP);
-  pinModeFast(encoderB, INPUT_PULLUP);  
-  pinMode(motorEncoder, INPUT_PULLUP);   
+  pinMode(encoderA, INPUT);
+  pinModeFast(encoderB, INPUT);  
+  digitalWrite(encoderA, LOW);
+  digitalWriteFast(encoderB, LOW);
+  pinMode(motorEncoder, INPUT);   // has hardware pull up 
   enableInterrupt(encoderA, pulse, RISING);
   enableInterrupt(motorEncoder, motorPulse, RISING);
 
@@ -66,15 +68,13 @@ void loop() {
 
   
   if(abs(Input) < 0.4){
-    //myPID.Compute();
-    
-    //g_motorDir = Output/abs(Output);
+    g_motorDir = Output/abs(Output);
     int speed = abs(Output);
     if(speed < 40){ speed = 0; g_motorDir =0; }      // prevent motor stalls
     motor.DRIVEMOTOR(g_motorDir, speed); 
   }
   else{
-    //g_motorDir = 0;
+    g_motorDir = 0;
     motor.DRIVEMOTOR(g_motorDir, 0);
     // hard reset of PID variables
     // don't want to accumulate integral term when pendulum is hanging downwards
@@ -91,7 +91,6 @@ void loop() {
       if(pCount == g_pendulumEncA){
         Serial.println("Recalibrate");
         g_pendulumEncA = 512;  
-        
       }  
       pCount = g_pendulumEncA; 
     } 
@@ -118,8 +117,6 @@ void loop() {
     t = millis();
     Serial.print("\n");
   }
-  
-  
   pendulum.CHECKLIMITS();         // do not need to be actively monitored via interrupts because of slow cart speed relative to loop() cycle speed
 }
 
