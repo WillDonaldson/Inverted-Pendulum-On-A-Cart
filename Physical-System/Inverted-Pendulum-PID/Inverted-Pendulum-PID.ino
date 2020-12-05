@@ -25,8 +25,8 @@ PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
 //int prevEncDir = 0;           //uncomment when tuning PID parameters
 //unsigned long prevOscT = 0;   //uncomment when tuning PID parameters
 
-int t = 0;
-int t2 = 0;
+unsigned long t = 0;
+unsigned long t2 = 0;
 int pCount = 0;
 int prevEncDir =0;
 unsigned long prevOscT = 0;
@@ -38,7 +38,7 @@ void setup() {
   
   pinMode(encoderA, INPUT);
   pinModeFast(encoderB, INPUT);  
-  digitalWrite(encoderA, LOW);
+  digitalWrite(encoderA, LOW);        // set internal pull down resistors
   digitalWriteFast(encoderB, LOW);
   pinMode(motorEncoder, INPUT);   // has hardware pull up 
   enableInterrupt(encoderA, pulse, RISING);
@@ -86,8 +86,8 @@ void loop() {
 
   if(abs(Input) > (PI-0.4)){
     // recalibrate encoder if it has been hanging downwards for more than 1 sec
-    if((millis() - t2) > 3000){
-      t2=millis();
+    if((millis() - t2) > 2000){
+      t2 = millis();                       
       if(pCount == g_pendulumEncA){
         Serial.println("Recalibrate");
         g_pendulumEncA = 512;  
@@ -96,7 +96,7 @@ void loop() {
     } 
   }
   
-  if((millis() - t) > 100){
+  if((millis() - t) > 300){
     Serial.print("Kp: ");
     Serial.print(Kp);
     Serial.print("\t");
